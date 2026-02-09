@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+strawberry-graphql[fastapi]
+sqlalchemy
+asyncpg
+python-dotenv
+psycopg2-binary
+alembic
+pydantic[email]
