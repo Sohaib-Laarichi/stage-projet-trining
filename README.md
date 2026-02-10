@@ -1,6 +1,6 @@
 # FastAPI Backend with GraphQL and Postgres
 
-This project demonstrates a FastAPI backend application serving GraphQL APIs using Strawberry, connected to a PostgreSQL database.
+This project demonstrates a FastAPI backend application serving GraphQL APIs using Strawberry, connected to a PostgreSQL database. It includes secure authentication using JWT and password hashing with Bcrypt.
 
 ## Project Structure
 
@@ -29,7 +29,17 @@ This project demonstrates a FastAPI backend application serving GraphQL APIs usi
     pip install -r requirements.txt
     ```
 
-4.  **Run the FastAPI server:**
+4.  **Environment Configuration:**
+    Ensure you have a `.env` file in the `backend/` directory with the following variables:
+    ```env
+    DATABASE_URL=postgresql+asyncpg://user:password@localhost:5433/fastapi_db
+    POSTGRES_USER=user
+    POSTGRES_PASSWORD=password
+    POSTGRES_DB=fastapi_db
+    SECRET_KEY=secret_key
+    ```
+
+5.  **Run the FastAPI server:**
     ```bash
     uvicorn main:app --reload --host 0.0.0.0 --port 8000
     ```
@@ -42,7 +52,62 @@ This project demonstrates a FastAPI backend application serving GraphQL APIs usi
     - **Email:** `admin@admin.com`
     - **Password:** `admin`
 
+## GraphQL Usage
+
+### Authentication Flow
+
+1.  **Register a new user:**
+    ```graphql
+    mutation Register {
+      register(input: {
+        username: "sohaib",
+        email: "sohaib@dark.com",
+        password: "Dark:911"
+      }) {
+        id
+        username
+      }
+    }
+    ```
+
+2.  **Login to get a JWT token:**
+    ```graphql
+    mutation Login {
+      login(input: {
+        username: "sohaib",
+        password: "Dark:911"
+      }) {
+        token
+        user {
+          username
+          role
+        }
+      }
+    }
+    ```
+
+3.  **Access Protected Routes (e.g., `me` query):**
+    Copy the `token` returned from the login mutation and add it to the **HTTP Headers** section in GraphQL Playground:
+    ```json
+    {
+      "Authorization": "Bearer JWT_TOKEN"
+    }
+    ```
+
+    Then run the query:
+    ```graphql
+    query Me {
+      me {
+        id
+        username
+        email
+        role
+      }
+    }
+    ```
+
 ## Development Notes
 
-- Database connection string is configured in `.env` (default: `postgresql+asyncpg://user:password@localhost/fastapi_db`).
-- Models are defined in `models.py` and schemas in `schemas.py`.
+- **Database:** Uses `sqlalchemy` with `asyncpg` for asynchronous database access.
+- **Authentication:** Uses `passlib[bcrypt]` for password hashing and `python-jose` for JWT tokens.
+- **CORS:** Enabled for all origins (`*`) to facilitate easy testing from browsers.
