@@ -85,6 +85,162 @@
                 }
             },
             "response": []
+        },
+        {
+            "name": "Register User",
+            "event": [
+                {
+                    "listen": "prerequest",
+                    "script": {
+                        "exec": [
+                            "var randomInt = Math.floor(Math.random() * 100000);",
+                            "pm.environment.set(\"test_username\", \"user_\" + randomInt);",
+                            "pm.environment.set(\"test_email\", \"user_\" + randomInt + \"@example.com\");",
+                            "pm.environment.set(\"test_password\", \"password123\");"
+                        ],
+                        "type": "text/javascript"
+                    }
+                },
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "pm.test(\"User registered successfully\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData.data.register.username).to.eql(pm.environment.get(\"test_username\"));",
+                            "    pm.expect(jsonData.data.register.email).to.eql(pm.environment.get(\"test_email\"));",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                    "mode": "graphql",
+                    "graphql": {
+                        "query": "mutation Register($username: String!, $email: String!, $password: String!) {\n    register(input: {username: $username, email: $email, password: $password}) {\n        id\n        username\n        email\n    }\n}",
+                        "variables": "{\n  \"username\": \"{{test_username}}\",\n  \"email\": \"{{test_email}}\",\n  \"password\": \"{{test_password}}\"\n}"
+                    }
+                },
+                "url": {
+                    "raw": "http://localhost:8000/graphql",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "8000",
+                    "path": [
+                        "graphql"
+                    ]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "Login User",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "pm.test(\"Login successful\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData.data.login.token).to.not.be.null;",
+                            "    pm.environment.set(\"jwt_token\", jsonData.data.login.token);",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                    "mode": "graphql",
+                    "graphql": {
+                        "query": "mutation Login($username: String!, $password: String!) {\n    login(input: {username: $username, password: $password}) {\n        token\n        user {\n            id\n            username\n        }\n    }\n}",
+                        "variables": "{\n  \"username\": \"{{test_username}}\",\n  \"password\": \"{{test_password}}\"\n}"
+                    }
+                },
+                "url": {
+                    "raw": "http://localhost:8000/graphql",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "8000",
+                    "path": [
+                        "graphql"
+                    ]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "Me Query (Authenticated)",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "pm.test(\"Authenticated user matches\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData.data.me.username).to.eql(pm.environment.get(\"test_username\"));",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "auth": {
+                    "type": "bearer",
+                    "bearer": [
+                        {
+                            "key": "token",
+                            "value": "{{jwt_token}}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                    "mode": "graphql",
+                    "graphql": {
+                        "query": "query {\n    me {\n        id\n        username\n        email\n        role\n    }\n}",
+                        "variables": ""
+                    }
+                },
+                "url": {
+                    "raw": "http://localhost:8000/graphql",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "8000",
+                    "path": [
+                        "graphql"
+                    ]
+                }
+            },
+            "response": []
         }
     ]
 }

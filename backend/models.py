@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Numeric
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Numeric, CheckConstraint, func
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
 from datetime import datetime
@@ -14,6 +14,10 @@ class User(Base):
     role = Column(String, nullable=False)  # ADMIN, USER
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    __table_args__ = (
+        CheckConstraint(func.length(username) >= 3, name="username_min_length"),
+    )
 
 class Product(Base):
     __tablename__ = "products"

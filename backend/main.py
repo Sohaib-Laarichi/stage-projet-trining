@@ -8,7 +8,18 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.on_event("startup")
 async def startup():
@@ -23,6 +34,14 @@ async def startup():
 async def health_check():
     return {"status": "UP"}
 
-graphql_app = GraphQLRouter(schema)
+
+from database import get_db
+from fastapi import Request
+
+async def get_context(request: Request):
+    async for session in get_db():
+        yield {"db": session, "request": request}
+
+graphql_app = GraphQLRouter(schema, context_getter=get_context)
 app.include_router(graphql_app, prefix="/graphql")
 
