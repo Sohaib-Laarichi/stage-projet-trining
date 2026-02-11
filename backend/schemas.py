@@ -34,11 +34,26 @@ class RegisterInput:
     username: str
     email: str
     password: str
+    role: str
 
 @strawberry.input
 class LoginInput:
     username: str
     password: str
+
+@strawberry.input
+class CreateProductInput:
+    name: str
+    description: str |None = None
+    price:Decimal
+    quantity:int
+
+@strawberry.input
+class UpdateProductInput:
+    name:Optional[str] = None
+    description:Optional[str]= None
+    price:Optional[Decimal]= None
+    quantity:Optional[int] = None
 
 @strawberry.type
 class AuthResponse:
@@ -79,9 +94,33 @@ class Query:
     async def me(self, info: Info) -> UserType:
         return await get_current_user(info)
 
+    @strawberry.field
+    async def products(self, info) -> List[ProductType]:
+        user = info.context.get("user")
+        if not user:
+            raise Exception("Unauthorized")
+        db = info.context["db"]
+        query = select(Product).order_by(Product.created_at.desc())
+        result = await db.execute(query)
+        return result.scalars().all()
+
+    @strawberry.field
+    async def product_by_id(self , info , id:int) -> ProductType:
+        user = info.context.get("user")
+        if not user:
+            raise Exception("Unauthorized")
+        db : AsyncSession = info.context["db"]
+        stmt = select(Product).where(Product.id == id)
+        result = await db.execute(stmt)
+        product = result.scalars().first()
+        if not product:
+            raise Exception("Product not found")
+        return product 
+
+
 @strawberry.type
 class Mutation:
-    @strawberry.field
+    @strawberry.mutation
     async def register(self, info: Info, input: RegisterInput) -> UserType:
         db: AsyncSession = info.context["db"]
         
@@ -93,13 +132,15 @@ class Mutation:
 
         if len(input.password) < 6:
             raise Exception("Password must be at least 6 characters")
+        if input.role not in ["ADMIN", "USER"]:
+            raise Exception("Invalid role")
 
         hashed_password = get_password_hash(input.password)
         new_user = User(
             username=input.username,
             email=input.email,
             password_hash=hashed_password,
-            role="USER" 
+            role=input.role
         )
         db.add(new_user)
         # Commit likely needed before refresh? Strawberry resolvers are async.
@@ -111,6 +152,79 @@ class Mutation:
             raise Exception(f"Registration failed: {str(e)}")
             
         return new_user
+
+    @strawberry.mutation
+    async def create_product(self, info , input:CreateProductInput) -> ProductType:
+        user = info.context.get("user")
+        if not user:
+            raise Exception("Unauthorized")
+        if len(input.name) < 2 :
+            raise Exception("Validation error : name")
+        if input.price < 0 :
+            raise Exception("Validation error : price")
+        if input.quantity < 0 :
+            raise Exception("Validation error : quantity")
+        db = info.context["db"]
+        new_product = Product(
+            name=input.name,
+            description=input.description,
+            price=input.price,
+            quantity=input.quantity
+        )
+        db.add(new_product)
+        await db.commit()
+        await db.refresh(new_product)
+        return new_product
+
+    @strawberry.mutation
+    async def update_product(self , info, id:int , input:UpdateProductInput) -> ProductType:
+        user = info.context.get("user")
+        if not user:
+            raise Exception("Unauthorized")
+        db: AsyncSession = info.context["db"]
+        stmt = select(Product).where(Product.id == id)
+        result = await db.execute(stmt)
+        product = result.scalars().first()
+        if not product:
+            raise Exception("Product not found")
+        
+        if input.name is not None:
+            if len(input.name) < 2 :
+                raise Exception("Validation error : name")
+            product.name = input.name
+        if input.description is not None:
+            product.description = input.description
+        if input.price is not None:
+            if input.price < 0 :
+                raise Exception("Validation error : price")
+            product.price = input.price
+        if input.quantity is not None :
+            if input.quantity < 0 :
+                raise Exception("Validation error : quantity")
+            product.quantity = input.quantity 
+
+        await db.commit()
+        await db.refresh(product)
+        return product
+
+    @strawberry.mutation
+    async def delete_product(self, info, id: int) -> ProductType:
+        user = info.context.get("user")
+        if not user:
+            raise Exception("Unauthorized")
+        if user.get("role") != "ADMIN":
+            raise Exception("Forbidden")
+        db: AsyncSession = info.context["db"]
+        stmt = select(Product).where(Product.id == id)
+        result = await db.execute(stmt)
+        product = result.scalars().first()
+        if not product:
+            raise Exception("Product not found")
+        await db.delete(product)
+        await db.commit()
+        return product
+
+
 
     @strawberry.field
     async def login(self, info: Info, input: LoginInput) -> AuthResponse:
@@ -127,5 +241,7 @@ class Mutation:
         token = create_access_token({"sub": user.username, "userId": str(user.id), "role": user.role})
         
         return AuthResponse(token=token, user=user)
+
+    
 
 schema = strawberry.Schema(query=Query, mutation=Mutation)

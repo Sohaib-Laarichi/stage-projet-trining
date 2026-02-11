@@ -62,10 +62,12 @@ This project demonstrates a FastAPI backend application serving GraphQL APIs usi
       register(input: {
         username: "sohaib",
         email: "sohaib@dark.com",
-        password: "Dark:911"
+        password: "Dark:911",
+        role: "USER"
       }) {
         id
         username
+        role
       }
     }
     ```
@@ -105,6 +107,59 @@ This project demonstrates a FastAPI backend application serving GraphQL APIs usi
       }
     }
     ```
+
+4.  **Product Management:**
+
+    *   **Create a Product :**
+        ```graphql
+        mutation CreateProduct {
+          createProduct(input: {
+            name: "Laptop",
+            description: "High performance laptop",
+            price: 1500.0,
+            quantity: 10
+          }) {
+            id
+            name
+            price
+          }
+        }
+        ```
+
+    *   **Update a Product :**
+        ```graphql
+        mutation UpdateProduct {
+          updateProduct(id: 1, input: {
+            price: 1400.0
+          }) {
+            id
+            name
+            price
+          }
+        }
+        ```
+
+    *   **Delete a Product (Admin only):**
+        ```graphql
+        mutation DeleteProduct {
+          deleteProduct(id: 1) {
+            id
+            name
+          }
+        }
+        ```
+
+    *   **Get All Products:**
+        ```graphql
+        query GetProducts {
+          products {
+            id
+            name
+            price
+            quantity
+          }
+        }
+        ```
 
 ## Development Notes
 

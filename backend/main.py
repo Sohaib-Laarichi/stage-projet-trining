@@ -37,10 +37,24 @@ async def health_check():
 
 from database import get_db
 from fastapi import Request
+from auth import decode_access_token
 
 async def get_context(request: Request):
     async for session in get_db():
-        yield {"db": session, "request": request}
+        user = None
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer"):
+            try:
+                token = auth_header.split(" ")[1]
+                user = decode_access_token(token)
+            except Exception:
+                user = None
+
+        yield {
+            "db": session,
+            "request": request,
+            "user": user
+        }
 
 graphql_app = GraphQLRouter(schema, context_getter=get_context)
 app.include_router(graphql_app, prefix="/graphql")
