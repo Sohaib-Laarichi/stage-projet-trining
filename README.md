@@ -161,6 +161,44 @@ This project demonstrates a FastAPI backend application serving GraphQL APIs usi
         }
         ```
 
+## Frontend Application
+
+The frontend is a React application built with Vite, using Apollo Client to communicate with the GraphQL API.
+
+### Setup and Running
+
+1.  **Navigate to the frontend directory:**
+    ```bash
+    cd frontend
+    ```
+
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
+
+3.  **Start the development server:**
+    ```bash
+    npm run dev
+    ```
+    The application will be available at [http://localhost:5173](http://localhost:5173).
+
+### Key Features & Configuration
+
+#### Apollo Client Setup
+The application uses **Apollo Client v4**. Note that imports for React hooks and the provider are imported from `@apollo/client/react` to ensure compatibility.
+
+#### Authentication
+*   **JWT Handling:** The application checks `localStorage` for a `token`.
+*   **Authorization Header:** An Apollo Link (`setContext`) automatically attaches the token to every GraphQL request:
+    ```javascript
+    Authorization: `Bearer ${token}`
+    ```
+
+#### Error Handling
+*   **Global Error Boundary:** Wraps the application to catch and display React runtime errors.
+*   **Component Level:** `ProductList` displays specific error messages if the backend is unreachable.
+
 ## Development Notes
 
 - **Database:** Uses `sqlalchemy` with `asyncpg` for asynchronous database access.
