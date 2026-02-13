@@ -199,6 +199,15 @@ The application uses **Apollo Client v4**. Note that imports for React hooks and
 *   **Global Error Boundary:** Wraps the application to catch and display React runtime errors.
 *   **Component Level:** `ProductList` displays specific error messages if the backend is unreachable.
 
+#### Features Implemented
+*   **Login Page:** Secure login form with validation (Zod) and error handling.
+*   **Protected Routes:** Only authenticated users can access product management pages (`/products`, `/products/new`, `/products/:id/edit`). Unauthenticated users are redirected to `/login`.
+*   **Product Management:**
+    *   **List:** View all products with real-time data from GraphQL.
+    *   **Create:** Form to add new products (`/products/new`).
+    *   **Edit:** Update existing products (`/products/:id/edit`).
+    *   **Logout:** Secure logout that clears the JWT token.
+
 ## Development Notes
 
 - **Database:** Uses `sqlalchemy` with `asyncpg` for asynchronous database access.
