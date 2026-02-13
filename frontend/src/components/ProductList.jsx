@@ -1,6 +1,8 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { useQuery } from '@apollo/client/react';
-import { GET_PRODUCTS } from './queries';
+import LogoutButton from './LogoutButton';
+import { GET_PRODUCTS } from '../queries';
 
 const ProductList = () => {
     const { loading, error, data } = useQuery(GET_PRODUCTS);
@@ -10,7 +12,25 @@ const ProductList = () => {
 
     return (
         <div style={{ padding: '20px' }}>
-            <h2>Liste des Produits</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                <h2 style={{ margin: 0 }}>Liste des Produits</h2>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                    <Link
+                        to="/products/new"
+                        style={{
+                            padding: '8px 16px',
+                            backgroundColor: '#28a745',
+                            color: 'white',
+                            textDecoration: 'none',
+                            borderRadius: '4px',
+                            fontWeight: 'bold'
+                        }}
+                    >
+                        Create New Product
+                    </Link>
+                    <LogoutButton />
+                </div>
+            </div>
             <table border="1" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                 <thead>
                     <tr style={{ backgroundColor: '#f4f4f4' }}>
@@ -25,7 +45,11 @@ const ProductList = () => {
                     {data && data.products && data.products.map((product) => (
                         <tr key={product.id}>
                             <td>{product.id}</td>
-                            <td><strong>{product.name}</strong></td>
+                            <td>
+                                <Link to={`/products/${product.id}/edit`} style={{ color: 'inherit', textDecoration: 'underline' }}>
+                                    <strong>{product.name}</strong>
+                                </Link>
+                            </td>
                             <td>{product.price} €</td>
                             <td>
                                 <span style={{
