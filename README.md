@@ -165,6 +165,18 @@ This project demonstrates a FastAPI backend application serving GraphQL APIs usi
 
 The frontend is a React application built with Vite, using Apollo Client to communicate with the GraphQL API.
 
+### Tech Stack
+
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| React | 19 | UI framework |
+| Vite | 7 | Build tool & dev server |
+| Apollo Client | 4 | GraphQL client |
+| react-router-dom | 7 | Routing & navigation |
+| react-hook-form | 7 | Form management |
+| zod | 4 | Schema validation |
+| react-hot-toast | 2 | Toast notifications |
+
 ### Setup and Running
 
 1.  **Navigate to the frontend directory:**
@@ -183,10 +195,10 @@ The frontend is a React application built with Vite, using Apollo Client to comm
     ```
     The application will be available at [http://localhost:5173](http://localhost:5173).
 
-### Key Features & Configuration
+### Architecture
 
 #### Apollo Client Setup
-The application uses **Apollo Client v4**. Note that imports for React hooks and the provider are imported from `@apollo/client/react` to ensure compatibility.
+The application uses **Apollo Client v4**. Imports for React hooks and the provider come from `@apollo/client/react` for compatibility.
 
 #### Authentication
 *   **JWT Handling:** The application checks `localStorage` for a `token`.
@@ -194,22 +206,76 @@ The application uses **Apollo Client v4**. Note that imports for React hooks and
     ```javascript
     Authorization: `Bearer ${token}`
     ```
+*   **Protected Routes:** Only authenticated users can access product management pages. Unauthenticated users are redirected to `/login`.
+
+#### Theme System
+*   **Dark / Light mode:** Managed via `ThemeContext` using CSS custom properties (`data-theme` attribute on `<html>`).
+*   **Persistence:** Theme preference saved to `localStorage` and restored on page load.
+*   **Toggle:** Available in the sidebar under Preferences.
+
+#### Language Switch
+*   **EN / FR toggle:** Stored in `localStorage` (placeholder for future `react-i18next` integration).
+
+### Features Implemented
+
+#### Main Layout (US-9)
+*   **Sidebar:** Persistent side navigation with menu items:
+    *   Products — navigates to `/products`
+    *   Theme switch — toggles dark/light mode
+    *   Language switch — toggles EN/FR
+    *   Logout — clears token and redirects to `/login`
+*   **Collapsible:** Sidebar can be toggled open/closed via a button.
+*   **Layout route:** All protected pages render inside the layout via `<Outlet />`.
+
+#### Login Page
+*   Secure login form with validation (Zod: username required, password min 6 chars).
+*   Themed to match the main layout (dark/light mode support).
+*   Error handling: network error → "Server unreachable", invalid credentials → toast.
+
+#### Product CRUD (US-10)
+
+| Feature | Route | Description |
+|---------|-------|-------------|
+| **List** (US-10.1) | `/products` | Table with Name, Price, Quantity, Actions columns. Loading spinner during fetch. Empty state when no products. |
+| **Create** (US-10.2) | `/products/new` | Form with name (min 2), description (optional), price (≥ 0), quantity (≥ 0). On success → toast + redirect. |
+| **Edit** (US-10.3) | `/products/:id/edit` | Fetches product by ID, prefills form. On save → update mutation + toast + redirect. |
+| **Delete** | Action button | Confirmation dialog → delete mutation → refetch list. |
 
 #### Error Handling
-*   **Global Error Boundary:** Wraps the application to catch and display React runtime errors.
-*   **Component Level:** `ProductList` displays specific error messages if the backend is unreachable.
+*   **Global Error Boundary:** Wraps the application to catch React runtime errors.
+*   **Unauthorized:** GraphQL "Unauthorized" errors → clear token → redirect to `/login`.
+*   **GraphQL errors:** Displayed as toast notifications.
+*   **Product not found:** Shows a dedicated "Product not found" message with a back link.
 
-#### Features Implemented
-*   **Login Page:** Secure login form with validation (Zod) and error handling.
-*   **Protected Routes:** Only authenticated users can access product management pages (`/products`, `/products/new`, `/products/:id/edit`). Unauthenticated users are redirected to `/login`.
-*   **Product Management:**
-    *   **List:** View all products with real-time data from GraphQL.
-    *   **Create:** Form to add new products (`/products/new`).
-    *   **Edit:** Update existing products (`/products/:id/edit`).
-    *   **Logout:** Secure logout that clears the JWT token.
+### Project Structure (Frontend)
+
+```
+frontend/src/
+├── context/
+│   └── ThemeContext.jsx       # Dark/light theme provider
+├── components/
+│   ├── MainLayout.jsx         # AppBar + Sidebar layout
+│   ├── MainLayout.css
+│   ├── Login.jsx              # Login page
+│   ├── Login.css
+│   ├── ProductList.jsx        # Products table
+│   ├── ProductList.css
+│   ├── ProductForm.jsx        # Create/Edit product form
+│   ├── ProductForm.css
+│   └── LogoutButton.jsx       # Standalone logout button
+├── schemas/
+│   └── authSchema.js          # Zod login validation schema
+├── queries.js                 # All GraphQL queries & mutations
+├── ErrorBoundary.jsx          # Global error boundary
+├── App.jsx                    # Routes & PrivateRoute
+├── main.jsx                   # Entry point (Apollo + Theme providers)
+├── index.css                  # Theme CSS variables
+└── App.css                    # Root styles
+```
 
 ## Development Notes
 
 - **Database:** Uses `sqlalchemy` with `asyncpg` for asynchronous database access.
 - **Authentication:** Uses `passlib[bcrypt]` for password hashing and `python-jose` for JWT tokens.
 - **CORS:** Enabled for all origins (`*`) to facilitate easy testing from browsers.
+

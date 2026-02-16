@@ -1,20 +1,13 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { gql } from '@apollo/client';
 import { useMutation } from '@apollo/client/react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Toaster } from 'react-hot-toast';
 import { loginSchema } from '../schemas/authSchema';
-
-const LOGIN_MUTATION = gql`
-  mutation Login($username: String!, $password: String!) {
-    login(input: { username: $username, password: $password }) {
-      token
-    }
-  }
-`;
+import { LOGIN_MUTATION } from '../queries';
+import './Login.css';
 
 const Login = () => {
     const navigate = useNavigate();
@@ -26,7 +19,7 @@ const Login = () => {
         formState: { errors, isValid },
     } = useForm({
         resolver: zodResolver(loginSchema),
-        mode: 'onChange', // Permet de désactiver le bouton en temps réel
+        mode: 'onChange',
     });
 
     const onSubmit = async (data) => {
@@ -48,37 +41,38 @@ const Login = () => {
     };
 
     return (
-        <div style={{ maxWidth: '400px', margin: '100px auto', padding: '20px', border: '1px solid #ddd' }}>
+        <div className="login-page">
             <Toaster />
-            <h2>Login</h2>
-            <form onSubmit={handleSubmit(onSubmit)}>
-                <div style={{ marginBottom: '15px' }}>
-                    <label>Username</label>
-                    <input
-                        {...register('username')}
-                        style={{ width: '100%', display: 'block', padding: '8px' }}
-                    />
-                    {errors.username && <p style={{ color: 'red' }}>{errors.username.message}</p>}
-                </div>
+            <div className="login-card">
+                <div className="login-card-logo">S</div>
+                <h2>Stock Manager</h2>
+                <p className="login-card-subtitle">Sign in to your account</p>
+                <form onSubmit={handleSubmit(onSubmit)}>
+                    <div className="login-field">
+                        <label>Username</label>
+                        <input {...register('username')} placeholder="Enter your username" />
+                        {errors.username && <p className="field-error">{errors.username.message}</p>}
+                    </div>
 
-                <div style={{ marginBottom: '15px' }}>
-                    <label>Password</label>
-                    <input
-                        type="password"
-                        {...register('password')}
-                        style={{ width: '100%', display: 'block', padding: '8px' }}
-                    />
-                    {errors.password && <p style={{ color: 'red' }}>{errors.password.message}</p>}
-                </div>
+                    <div className="login-field">
+                        <label>Password</label>
+                        <input
+                            type="password"
+                            {...register('password')}
+                            placeholder="Enter your password"
+                        />
+                        {errors.password && <p className="field-error">{errors.password.message}</p>}
+                    </div>
 
-                <button
-                    type="submit"
-                    disabled={!isValid || loading}
-                    style={{ width: '100%', padding: '10px', cursor: isValid ? 'pointer' : 'not-allowed' }}
-                >
-                    {loading ? 'Connecting...' : 'Login'}
-                </button>
-            </form>
+                    <button
+                        type="submit"
+                        className="login-submit"
+                        disabled={!isValid || loading}
+                    >
+                        {loading ? 'Connecting...' : 'Sign In'}
+                    </button>
+                </form>
+            </div>
         </div>
     );
 };

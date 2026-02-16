@@ -1,69 +1,117 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { useQuery } from '@apollo/client/react';
-import LogoutButton from './LogoutButton';
-import { GET_PRODUCTS } from '../queries';
+import { Link, useNavigate } from 'react-router-dom';
+import { useQuery, useMutation } from '@apollo/client/react';
+import { GET_PRODUCTS, DELETE_PRODUCT } from '../queries';
+import toast from 'react-hot-toast';
+import { Toaster } from 'react-hot-toast';
+import './ProductList.css';
 
 const ProductList = () => {
-    const { loading, error, data } = useQuery(GET_PRODUCTS);
+    const navigate = useNavigate();
+    const { loading, error, data } = useQuery(GET_PRODUCTS, {
+        fetchPolicy: 'cache-and-network',
+        onError: (err) => {
+            if (err.message.includes('Unauthorized')) {
+                localStorage.removeItem('token');
+                navigate('/login');
+            } else {
+                toast.error('Failed to load products');
+            }
+        },
+    });
 
-    if (loading) return <p>Chargement des produits...</p>;
-    if (error) return <p style={{ color: 'red' }}>Erreur : {error.message}</p>;
+    const [deleteProduct] = useMutation(DELETE_PRODUCT, {
+        refetchQueries: [{ query: GET_PRODUCTS }],
+        onCompleted: () => toast.success('Product deleted'),
+        onError: (err) => toast.error(err.message || 'Delete failed'),
+    });
+
+    const handleDelete = (id, name) => {
+        if (window.confirm(`Delete "${name}"?`)) {
+            deleteProduct({ variables: { id } });
+        }
+    };
+
+    if (loading && !data) {
+        return (
+            <div className="spinner-container">
+                <div className="spinner" />
+                <span className="spinner-text">Loading products...</span>
+            </div>
+        );
+    }
+
+    if (error && !data) {
+        return null; // Error already handled via onError
+    }
+
+    const products = data?.products || [];
 
     return (
-        <div style={{ padding: '20px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-                <h2 style={{ margin: 0 }}>Liste des Produits</h2>
-                <div style={{ display: 'flex', gap: '10px' }}>
-                    <Link
-                        to="/products/new"
-                        style={{
-                            padding: '8px 16px',
-                            backgroundColor: '#28a745',
-                            color: 'white',
-                            textDecoration: 'none',
-                            borderRadius: '4px',
-                            fontWeight: 'bold'
-                        }}
-                    >
-                        Create New Product
-                    </Link>
-                    <LogoutButton />
-                </div>
+        <div>
+            <Toaster position="top-right" />
+            <div className="products-header">
+                <h2>Products</h2>
+                <Link to="/products/new" className="btn-create">
+                    + New Product
+                </Link>
             </div>
-            <table border="1" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-                <thead>
-                    <tr style={{ backgroundColor: '#f4f4f4' }}>
-                        <th>ID</th>
-                        <th>Nom</th>
-                        <th>Prix</th>
-                        <th>Quantité</th>
-                        <th>Date de création</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {data && data.products && data.products.map((product) => (
-                        <tr key={product.id}>
-                            <td>{product.id}</td>
-                            <td>
-                                <Link to={`/products/${product.id}/edit`} style={{ color: 'inherit', textDecoration: 'underline' }}>
-                                    <strong>{product.name}</strong>
-                                </Link>
-                            </td>
-                            <td>{product.price} €</td>
-                            <td>
-                                <span style={{
-                                    color: product.quantity < 5 ? 'red' : 'green',
-                                    fontWeight: 'bold'
-                                }}>
-                                    {product.quantity}
-                                </span>
-                            </td>
-                            <td>{new Date(product.createdAt).toLocaleDateString()}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+
+            {products.length === 0 ? (
+                <div className="products-table-wrapper">
+                    <div className="empty-state">
+                        <div className="empty-state-icon">📦</div>
+                        <h3>No products yet</h3>
+                        <p>Create your first product to get started.</p>
+                    </div>
+                </div>
+            ) : (
+                <div className="products-table-wrapper">
+                    <table className="products-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {products.map((product) => (
+                                <tr key={product.id}>
+                                    <td>
+                                        <strong>{product.name}</strong>
+                                        {product.description && (
+                                            <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>
+                                                {product.description}
+                                            </div>
+                                        )}
+                                    </td>
+                                    <td>{product.price} DH</td>
+                                    <td>
+                                        <span className={`qty-badge ${product.quantity < 5 ? 'low' : 'ok'}`}>
+                                            {product.quantity}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div className="actions-cell">
+                                            <Link to={`/products/${product.id}/edit`} className="btn-action">
+                                                Edit
+                                            </Link>
+                                            <button
+                                                className="btn-action delete"
+                                                onClick={() => handleDelete(product.id, product.name)}
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
         </div>
     );
 };

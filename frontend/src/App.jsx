@@ -2,11 +2,10 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './components/Login';
 import ProductList from './components/ProductList';
 import ProductForm from './components/ProductForm';
-
+import MainLayout from './components/MainLayout';
 
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem('token');
-
   return token ? children : <Navigate to="/login" />;
 };
 
@@ -16,33 +15,18 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
 
-        { }
+        {/* All protected routes wrapped in MainLayout */}
         <Route
-          path="/products"
           element={
             <PrivateRoute>
-              <ProductList />
+              <MainLayout />
             </PrivateRoute>
           }
-        />
-
-        <Route
-          path="/products/new"
-          element={
-            <PrivateRoute>
-              <ProductForm />
-            </PrivateRoute>
-          }
-        />
-
-        <Route
-          path="/products/:id/edit"
-          element={
-            <PrivateRoute>
-              <ProductForm />
-            </PrivateRoute>
-          }
-        />
+        >
+          <Route path="/products" element={<ProductList />} />
+          <Route path="/products/new" element={<ProductForm />} />
+          <Route path="/products/:id/edit" element={<ProductForm />} />
+        </Route>
 
         <Route path="/" element={<Navigate to="/login" />} />
       </Routes>

@@ -1,0 +1,141 @@
+/* ===== Product Form ===== */
+.product-form-container {
+    max-width: 520px;
+}
+
+.product-form-container h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 24px;
+}
+
+.product-form {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 28px;
+}
+
+.form-field {
+    margin-bottom: 20px;
+}
+
+.form-field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+
+.form-field input,
+.form-field textarea {
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-family: inherit;
+    background: var(--input-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+}
+
+.form-field textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.form-field input:focus,
+.form-field textarea:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.form-field .field-error {
+    color: #ef4444;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 28px;
+}
+
+.btn-cancel {
+    flex: 1;
+    padding: 11px;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    background: var(--input-bg);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.btn-cancel:hover {
+    background: var(--hover-bg);
+    color: var(--text-primary);
+}
+
+.btn-submit {
+    flex: 1;
+    padding: 11px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    color: #fff;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+}
+
+.btn-submit:hover:not(:disabled) {
+    opacity: 0.9;
+}
+
+.btn-submit:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+.btn-submit:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Not found state */
+.not-found {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.not-found h3 {
+    color: var(--text-primary);
+    margin: 0 0 8px;
+}
+
+.not-found p {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin: 0 0 20px;
+}
+
+.not-found a {
+    color: #6366f1;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.not-found a:hover {
+    text-decoration: underline;
+}
