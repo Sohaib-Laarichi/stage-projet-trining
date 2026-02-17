@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './components/Login';
+import Register from './components/Register';
 import ProductList from './components/ProductList';
 import ProductForm from './components/ProductForm';
 import MainLayout from './components/MainLayout';
@@ -14,6 +15,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
         {/* All protected routes wrapped in MainLayout */}
         <Route

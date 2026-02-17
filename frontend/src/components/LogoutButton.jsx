@@ -16,10 +16,10 @@ const LogoutButton = () => {
       onClick={handleLogout}
       style={{
         padding: '8px 16px',
-        backgroundColor: '#ff4d4f',
+        backgroundColor: '#f00509ff',
         color: 'white',
         border: 'none',
-        borderRadius: '4px',
+        borderRadius: '6px',
         cursor: 'pointer',
         fontWeight: 'bold'
       }}

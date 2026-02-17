@@ -41,7 +41,7 @@ This project demonstrates a FastAPI backend application serving GraphQL APIs usi
 
 5.  **Run the FastAPI server:**
     ```bash
-    uvicorn main:app --reload --host 0.0.0.0 --port 8000
+    python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
     ```
 
 ## Accessing the Application
@@ -51,6 +51,17 @@ This project demonstrates a FastAPI backend application serving GraphQL APIs usi
 - **pgAdmin:** [http://localhost:5050](http://localhost:5050)
     - **Email:** `admin@admin.com`
     - **Password:** `admin`
+
+## Demo
+
+**Demo videos are available in the `test Screen/` folder** (not included in repository due to file size limits).
+
+The demo demonstrates:
+- User registration and login flow
+- Product CRUD operations (Create, Read, Update, Delete)
+- Theme switching (Dark/Light mode)
+- Language toggle (EN/FR)
+- Form validation and error handling
 
 ## GraphQL Usage
 
@@ -176,6 +187,8 @@ The frontend is a React application built with Vite, using Apollo Client to comm
 | react-hook-form | 7 | Form management |
 | zod | 4 | Schema validation |
 | react-hot-toast | 2 | Toast notifications |
+| react-i18next | 15 | Internationalization |
+| i18next | 24 | Translation framework |
 
 ### Setup and Running
 
@@ -210,13 +223,33 @@ The application uses **Apollo Client v4**. Imports for React hooks and the provi
 
 #### Theme System
 *   **Dark / Light mode:** Managed via `ThemeContext` using CSS custom properties (`data-theme` attribute on `<html>`).
-*   **Persistence:** Theme preference saved to `localStorage` and restored on page load.
+*   **Persistence:** Theme preference saved to `localStorage` and restored on page load via inline script (prevents FOUC).
 *   **Toggle:** Available in the sidebar under Preferences.
+*   **Global:** Theme applies to all pages including Login and Register.
 
-#### Language Switch
-*   **EN / FR toggle:** Stored in `localStorage` (placeholder for future `react-i18next` integration).
+#### Internationalization (i18n)
+*   **Languages:** English (EN) and French (FR) support via `react-i18next`.
+*   **Persistence:** Language preference saved to `localStorage`.
+*   **Toggle:** Available in the sidebar - switches between EN/FR.
+*   **Coverage:** All UI labels, validation messages, and toast notifications are translated.
+*   **Translation Files:** `src/i18n/en.json` and `src/i18n/fr.json`.
+
+#### Logo & Branding
+*   **Logo Component:** Reusable `Logo.jsx` with configurable sizes (small/medium/large).
+*   **Favicon:** Custom logo displayed in browser tab.
+*   **Placement:** Logo appears on Login, Register, and MainLayout sidebar.
+*   **Page Title:** "Stock Manager" displayed in browser tab.
 
 ### Features Implemented
+
+#### User Registration (US-8)
+*   **Route:** `/register`
+*   **Form Fields:** Username, Email, Password (min 6 chars), Role (USER/ADMIN dropdown)
+*   **Validation:** Zod schema with email format, password length, and role enum validation
+*   **Success Flow:** Toast notification → redirect to login page
+*   **Error Handling:** Duplicate user detection, network errors
+*   **Design:** Split-panel layout matching Login page with SVG illustration
+*   **i18n:** Fully translated (EN/FR)
 
 #### Main Layout (US-9)
 *   **Sidebar:** Persistent side navigation with menu items:
@@ -228,9 +261,12 @@ The application uses **Apollo Client v4**. Imports for React hooks and the provi
 *   **Layout route:** All protected pages render inside the layout via `<Outlet />`.
 
 #### Login Page
-*   Secure login form with validation (Zod: username required, password min 6 chars).
-*   Themed to match the main layout (dark/light mode support).
-*   Error handling: network error → "Server unreachable", invalid credentials → toast.
+*   **Design:** Modern split-panel layout with dark gradient form panel and illustration panel.
+*   **Validation:** Zod schema (username required, password min 6 chars).
+*   **Theme Support:** Fully themed (dark/light mode).
+*   **i18n:** Fully translated (EN/FR).
+*   **Error Handling:** Network error → "Server unreachable", invalid credentials → toast notification.
+*   **Navigation:** Link to Register page for new users.
 
 #### Product CRUD (US-10)
 
@@ -258,17 +294,24 @@ frontend/src/
 │   ├── MainLayout.css
 │   ├── Login.jsx              # Login page
 │   ├── Login.css
+│   ├── Register.jsx           # Registration page
 │   ├── ProductList.jsx        # Products table
 │   ├── ProductList.css
 │   ├── ProductForm.jsx        # Create/Edit product form
 │   ├── ProductForm.css
+│   ├── Logo.jsx               # Reusable logo component
+│   ├── Logo.css
 │   └── LogoutButton.jsx       # Standalone logout button
+├── i18n/
+│   ├── en.json                # English translations
+│   ├── fr.json                # French translations
+│   └── i18n.js                # i18next configuration
 ├── schemas/
-│   └── authSchema.js          # Zod login validation schema
+│   └── authSchema.js          # Zod validation schemas (login/register)
 ├── queries.js                 # All GraphQL queries & mutations
 ├── ErrorBoundary.jsx          # Global error boundary
 ├── App.jsx                    # Routes & PrivateRoute
-├── main.jsx                   # Entry point (Apollo + Theme providers)
+├── main.jsx                   # Entry point (Apollo + Theme + i18n providers)
 ├── index.css                  # Theme CSS variables
 └── App.css                    # Root styles
 ```

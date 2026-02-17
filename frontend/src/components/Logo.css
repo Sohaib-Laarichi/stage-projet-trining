@@ -1,0 +1,34 @@
+.logo-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.logo-image {
+    height: auto;
+    object-fit: contain;
+}
+
+
+.logo-small .logo-image {
+    width: 80px;
+}
+
+.logo-medium .logo-image {
+    width: 400px;
+}
+
+.logo-large .logo-image {
+    width: 400px;
+}
+
+
+@media (max-width: 768px) {
+    .logo-medium .logo-image {
+        width: 200px;
+    }
+
+    .logo-large .logo-image {
+        width: 300px;
+    }
+}

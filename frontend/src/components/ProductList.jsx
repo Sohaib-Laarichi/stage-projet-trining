@@ -1,12 +1,14 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@apollo/client/react';
+import { useTranslation } from 'react-i18next';
 import { GET_PRODUCTS, DELETE_PRODUCT } from '../queries';
 import toast from 'react-hot-toast';
 import { Toaster } from 'react-hot-toast';
 import './ProductList.css';
 
 const ProductList = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const { loading, error, data } = useQuery(GET_PRODUCTS, {
         fetchPolicy: 'cache-and-network',
@@ -15,19 +17,19 @@ const ProductList = () => {
                 localStorage.removeItem('token');
                 navigate('/login');
             } else {
-                toast.error('Failed to load products');
+                toast.error(t('products.loadFailed'));
             }
         },
     });
 
     const [deleteProduct] = useMutation(DELETE_PRODUCT, {
         refetchQueries: [{ query: GET_PRODUCTS }],
-        onCompleted: () => toast.success('Product deleted'),
-        onError: (err) => toast.error(err.message || 'Delete failed'),
+        onCompleted: () => toast.success(t('products.deleteSuccess')),
+        onError: (err) => toast.error(err.message || t('products.deleteFailed')),
     });
 
     const handleDelete = (id, name) => {
-        if (window.confirm(`Delete "${name}"?`)) {
+        if (window.confirm(t('products.deleteConfirm', { name }))) {
             deleteProduct({ variables: { id } });
         }
     };
@@ -36,13 +38,13 @@ const ProductList = () => {
         return (
             <div className="spinner-container">
                 <div className="spinner" />
-                <span className="spinner-text">Loading products...</span>
+                <span className="spinner-text">{t('products.loading')}</span>
             </div>
         );
     }
 
     if (error && !data) {
-        return null; // Error already handled via onError
+        return null;
     }
 
     const products = data?.products || [];
@@ -51,9 +53,9 @@ const ProductList = () => {
         <div>
             <Toaster position="top-right" />
             <div className="products-header">
-                <h2>Products</h2>
+                <h2>{t('products.title')}</h2>
                 <Link to="/products/new" className="btn-create">
-                    + New Product
+                    {t('products.newProduct')}
                 </Link>
             </div>
 
@@ -61,8 +63,8 @@ const ProductList = () => {
                 <div className="products-table-wrapper">
                     <div className="empty-state">
                         <div className="empty-state-icon">📦</div>
-                        <h3>No products yet</h3>
-                        <p>Create your first product to get started.</p>
+                        <h3>{t('products.emptyTitle')}</h3>
+                        <p>{t('products.emptyDescription')}</p>
                     </div>
                 </div>
             ) : (
@@ -70,10 +72,10 @@ const ProductList = () => {
                     <table className="products-table">
                         <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>Price</th>
-                                <th>Quantity</th>
-                                <th>Actions</th>
+                                <th>{t('products.name')}</th>
+                                <th>{t('products.price')}</th>
+                                <th>{t('products.quantity')}</th>
+                                <th>{t('products.actions')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -96,13 +98,13 @@ const ProductList = () => {
                                     <td>
                                         <div className="actions-cell">
                                             <Link to={`/products/${product.id}/edit`} className="btn-action">
-                                                Edit
+                                                {t('products.edit')}
                                             </Link>
                                             <button
                                                 className="btn-action delete"
                                                 onClick={() => handleDelete(product.id, product.name)}
                                             >
-                                                Delete
+                                                {t('products.delete')}
                                             </button>
                                         </div>
                                     </td>

@@ -1,6 +1,7 @@
 /* ===== Product Form ===== */
 .product-form-container {
     max-width: 520px;
+    margin: 0 auto;
 }
 
 .product-form-container h2 {

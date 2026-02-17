@@ -4,23 +4,25 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation } from '@apollo/client/react';
+import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import { Toaster } from 'react-hot-toast';
 import { GET_PRODUCT_BY_ID, CREATE_PRODUCT, UPDATE_PRODUCT, GET_PRODUCTS } from '../queries';
 import './ProductForm.css';
 
-const productSchema = z.object({
-    name: z.string().min(2, 'Name must be at least 2 characters'),
-    description: z.string().optional().or(z.literal('')),
-    price: z.number({ invalid_type_error: 'Price is required' }).min(0, 'Price must be >= 0'),
-    quantity: z.number({ invalid_type_error: 'Quantity is required' }).int('Must be a whole number').min(0, 'Quantity must be >= 0'),
-});
-
 const ProductForm = () => {
+    const { t } = useTranslation();
     const { id } = useParams();
     const navigate = useNavigate();
     const isEditMode = !!id;
     const productId = id ? parseInt(id, 10) : null;
+
+    const productSchema = z.object({
+        name: z.string().min(2, t('validation.nameMin')),
+        description: z.string().optional().or(z.literal('')),
+        price: z.number({ invalid_type_error: t('validation.priceRequired') }).min(0, t('validation.priceMin')),
+        quantity: z.number({ invalid_type_error: t('validation.quantityRequired') }).int(t('validation.quantityInt')).min(0, t('validation.quantityMin')),
+    });
 
     const {
         register,
@@ -61,22 +63,22 @@ const ProductForm = () => {
     const [createProduct, { loading: creating }] = useMutation(CREATE_PRODUCT, {
         refetchQueries: [{ query: GET_PRODUCTS }],
         onCompleted: () => {
-            toast.success('Product created successfully');
+            toast.success(t('productForm.createSuccess'));
             setTimeout(() => navigate('/products'), 800);
         },
         onError: (err) => {
-            toast.error(err.message || 'Create product failed');
+            toast.error(err.message || t('productForm.createFailed'));
         },
     });
 
     const [updateProduct, { loading: updating }] = useMutation(UPDATE_PRODUCT, {
         refetchQueries: [{ query: GET_PRODUCTS }],
         onCompleted: () => {
-            toast.success('Product updated successfully');
+            toast.success(t('productForm.updateSuccess'));
             setTimeout(() => navigate('/products'), 800);
         },
         onError: (err) => {
-            toast.error(err.message || 'Update failed');
+            toast.error(err.message || t('productForm.updateFailed'));
         },
     });
 
@@ -102,7 +104,7 @@ const ProductForm = () => {
         return (
             <div className="spinner-container">
                 <div className="spinner" />
-                <span className="spinner-text">Loading product...</span>
+                <span className="spinner-text">{t('productForm.loading')}</span>
             </div>
         );
     }
@@ -111,9 +113,9 @@ const ProductForm = () => {
     if (isEditMode && fetchError && fetchError.message.includes('not found')) {
         return (
             <div className="not-found">
-                <h3>Product not found</h3>
-                <p>The product you're looking for doesn't exist.</p>
-                <Link to="/products">← Back to Products</Link>
+                <h3>{t('productForm.notFoundTitle')}</h3>
+                <p>{t('productForm.notFoundDescription')}</p>
+                <Link to="/products">{t('productForm.backToProducts')}</Link>
             </div>
         );
     }
@@ -121,49 +123,49 @@ const ProductForm = () => {
     return (
         <div className="product-form-container">
             <Toaster position="top-right" />
-            <h2>{isEditMode ? 'Edit Product' : 'Create Product'}</h2>
+            <h2>{isEditMode ? t('productForm.editTitle') : t('productForm.createTitle')}</h2>
 
             <div className="product-form">
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <div className="form-field">
-                        <label htmlFor="name">Product Name *</label>
+                        <label htmlFor="name">{t('productForm.nameLabel')}</label>
                         <input
                             id="name"
                             {...register('name')}
-                            placeholder="e.g. Awesome Gadget"
+                            placeholder={t('productForm.namePlaceholder')}
                         />
                         {errors.name && <p className="field-error">{errors.name.message}</p>}
                     </div>
 
                     <div className="form-field">
-                        <label htmlFor="description">Description</label>
+                        <label htmlFor="description">{t('productForm.descriptionLabel')}</label>
                         <textarea
                             id="description"
                             {...register('description')}
-                            placeholder="Optional product description"
+                            placeholder={t('productForm.descriptionPlaceholder')}
                             rows={3}
                         />
                     </div>
 
                     <div className="form-field">
-                        <label htmlFor="price">Price (DH) *</label>
+                        <label htmlFor="price">{t('productForm.priceLabel')}</label>
                         <input
                             id="price"
                             type="number"
                             step="0.01"
                             {...register('price', { valueAsNumber: true })}
-                            placeholder="0.00"
+                            placeholder={t('productForm.pricePlaceholder')}
                         />
                         {errors.price && <p className="field-error">{errors.price.message}</p>}
                     </div>
 
                     <div className="form-field">
-                        <label htmlFor="quantity">Quantity *</label>
+                        <label htmlFor="quantity">{t('productForm.quantityLabel')}</label>
                         <input
                             id="quantity"
                             type="number"
                             {...register('quantity', { valueAsNumber: true })}
-                            placeholder="0"
+                            placeholder={t('productForm.quantityPlaceholder')}
                         />
                         {errors.quantity && <p className="field-error">{errors.quantity.message}</p>}
                     </div>
@@ -174,14 +176,14 @@ const ProductForm = () => {
                             className="btn-cancel"
                             onClick={() => navigate('/products')}
                         >
-                            Cancel
+                            {t('productForm.cancel')}
                         </button>
                         <button
                             type="submit"
                             className="btn-submit"
                             disabled={!isValid || isSaving}
                         >
-                            {isSaving ? 'Saving...' : (isEditMode ? 'Update' : 'Create')}
+                            {isSaving ? t('productForm.saving') : (isEditMode ? t('productForm.update') : t('productForm.create'))}
                         </button>
                     </div>
                 </form>
