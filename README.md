@@ -54,7 +54,7 @@ This project demonstrates a FastAPI backend application serving GraphQL APIs usi
 
 ## Demo
 
-**Demo videos are available in the `test Screen/` folder** (not included in repository due to file size limits).
+**Demo videos are available in the `test Screen/` folder** .
 
 The demo demonstrates:
 - User registration and login flow
