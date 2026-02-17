@@ -56,6 +56,12 @@ This project demonstrates a FastAPI backend application serving GraphQL APIs usi
 
 **Demo videos are available in the `test Screen/` folder** .
 
+<video width="100%" controls>
+  <source src="test Screen/vidioDeTest.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
+
 The demo demonstrates:
 - User registration and login flow
 - Product CRUD operations (Create, Read, Update, Delete)
