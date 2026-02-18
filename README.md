@@ -367,17 +367,6 @@ Test Files  6 passed (6)
   Duration  ~3.8s
 ```
 
-### Test Files
-
-| File | US | Tests | Coverage |
-|------|----|-------|---------|
-| `src/__tests__/example.test.jsx` | US-13.1 | 2 | Vitest + jest-dom setup sanity check |
-| `src/__tests__/authStorage.test.js` | US-13.2 | 5 | Token store, clear, isLoggedIn detection |
-| `src/__tests__/productQueries.test.jsx` | US-13.3 | 4 | GET_PRODUCTS, CREATE, UPDATE, DELETE via MockedProvider |
-| `src/__tests__/Login.test.jsx` | US-13.4 | 6 | Form rendering, validation, disabled state, mutation on submit |
-| `src/__tests__/ProductForm.test.jsx` | US-13.4 | 6 | Field rendering, validation errors, button states, CREATE mutation |
-| `src/__tests__/ProductList.test.jsx` | US-13.4 | 8 | Loading spinner, table rows, edit/delete buttons, empty state, DELETE mutation |
-
 ### Auth Storage Utility
 
 A pure `localStorage` wrapper was extracted to `src/utils/authStorage.js` to make auth logic independently testable:
