@@ -323,9 +323,81 @@ frontend/src/
 └── App.css                    # Root styles
 ```
 
-## Development Notes
-
 - **Database:** Uses `sqlalchemy` with `asyncpg` for asynchronous database access.
 - **Authentication:** Uses `passlib[bcrypt]` for password hashing and `python-jose` for JWT tokens.
 - **CORS:** Enabled for all origins (`*`) to facilitate easy testing from browsers.
 
+---
+
+## Frontend Testing (US-13)
+
+The frontend uses **Vitest** + **Testing Library** for unit and component tests.
+
+### Testing Stack
+
+| Library | Purpose |
+|---------|---------|
+| `vitest` | Test runner (Vite-native) |
+| `@testing-library/react` | React component rendering |
+| `@testing-library/jest-dom` | DOM matchers (`toBeInTheDocument`, etc.) |
+| `@testing-library/user-event` | Realistic user interaction simulation |
+| `jsdom` | Browser-like DOM environment |
+| `@apollo/client MockedProvider` | Mock GraphQL responses without a real server |
+
+### Running Tests
+
+```bash
+cd frontend
+
+# Run all tests once (CI mode)
+npm run test
+
+# Run in watch mode (development)
+npm run test:watch
+
+# Open interactive Vitest UI
+npm run test:ui
+```
+
+### Test Results
+
+```
+Test Files  6 passed (6)
+     Tests  31 passed (31)
+  Duration  ~3.8s
+```
+
+### Test Files
+
+| File | US | Tests | Coverage |
+|------|----|-------|---------|
+| `src/__tests__/example.test.jsx` | US-13.1 | 2 | Vitest + jest-dom setup sanity check |
+| `src/__tests__/authStorage.test.js` | US-13.2 | 5 | Token store, clear, isLoggedIn detection |
+| `src/__tests__/productQueries.test.jsx` | US-13.3 | 4 | GET_PRODUCTS, CREATE, UPDATE, DELETE via MockedProvider |
+| `src/__tests__/Login.test.jsx` | US-13.4 | 6 | Form rendering, validation, disabled state, mutation on submit |
+| `src/__tests__/ProductForm.test.jsx` | US-13.4 | 6 | Field rendering, validation errors, button states, CREATE mutation |
+| `src/__tests__/ProductList.test.jsx` | US-13.4 | 8 | Loading spinner, table rows, edit/delete buttons, empty state, DELETE mutation |
+
+### Auth Storage Utility
+
+A pure `localStorage` wrapper was extracted to `src/utils/authStorage.js` to make auth logic independently testable:
+
+```js
+import { setToken, getToken, removeToken, isLoggedIn } from './utils/authStorage';
+```
+
+### Project Structure (Tests)
+
+```
+frontend/src/
+├── setupTests.js              # jest-dom import + window.matchMedia mock
+├── utils/
+│   └── authStorage.js         # Pure auth token utility (US-13.2)
+└── __tests__/
+    ├── example.test.jsx        # Setup sanity check (US-13.1)
+    ├── authStorage.test.js     # Auth logic unit tests (US-13.2)
+    ├── productQueries.test.jsx # GraphQL query/mutation tests (US-13.3)
+    ├── Login.test.jsx          # LoginPage component tests (US-13.4)
+    ├── ProductForm.test.jsx    # ProductFormPage component tests (US-13.4)
+    └── ProductList.test.jsx    # ProductsListPage component tests (US-13.4)
+```
