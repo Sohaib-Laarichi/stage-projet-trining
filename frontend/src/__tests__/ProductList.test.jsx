@@ -13,7 +13,7 @@ const mockProducts = [
     { id: 2, name: 'Gadget', description: 'A gadget', price: 19.99, quantity: 2, createdAt: '2024-01-02' },
 ];
 
-// Each test gets its own mock instance to avoid shared-state exhaustion
+
 const makeProductsMock = () => ({
     request: { query: GET_PRODUCTS },
     result: { data: { products: mockProducts } },
@@ -29,7 +29,7 @@ const deleteMock = {
     result: { data: { deleteProduct: { id: 1 } } },
 };
 
-// After delete, refetch returns only Gadget
+
 const refetchAfterDeleteMock = {
     request: { query: GET_PRODUCTS },
     result: { data: { products: [mockProducts[1]] } },
@@ -102,10 +102,8 @@ describe('ProductsListPage', () => {
     });
 
     it('low-quantity badge is applied when quantity < 5', async () => {
-        // Use its own fresh mock so previous tests don't exhaust it
         renderList([makeProductsMock()]);
         await waitFor(() => expect(screen.getByText('Widget')).toBeInTheDocument());
-        // Gadget has quantity 2, should have 'low' class
         const badges = document.querySelectorAll('.qty-badge.low');
         expect(badges.length).toBeGreaterThan(0);
     });

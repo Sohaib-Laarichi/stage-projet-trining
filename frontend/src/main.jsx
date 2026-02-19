@@ -25,7 +25,6 @@ const authLink = setContext((_, { headers }) => {
   };
 });
 
-/** Locale-aware messages (outside React tree, so we can't use i18n hook). */
 const getMsg = (key) => {
   try {
     const lng = localStorage.getItem('i18nextLng') || 'en';
@@ -45,18 +44,15 @@ import { isInfraError, isAuthError } from './utils/errorUtils';
 const errorLink = onError(({ graphQLErrors, networkError }) => {
   if (graphQLErrors) {
     for (const gqlError of graphQLErrors) {
-      // 1. Auth Errors
       if (isAuthError(gqlError)) {
         const msg = (gqlError.message || '').toLowerCase();
 
-        // Unauthorized
         if (msg.includes('unauthorized') || msg.includes('401')) {
           localStorage.removeItem('token');
           window.location.href = '/login';
           return;
         }
 
-        // Forbidden (Fallback to this if isAuthError is true but not Unauthorized)
         toast.error(getMsg('forbidden'));
         return;
       }

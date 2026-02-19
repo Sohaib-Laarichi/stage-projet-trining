@@ -8,7 +8,7 @@ import '../i18n/i18n';
 import ProductForm from '../components/ProductForm';
 import { CREATE_PRODUCT, GET_PRODUCTS } from '../queries';
 
-// ProductForm sends null (not '') for an empty description field
+
 const createMock = {
     request: {
         query: CREATE_PRODUCT,
@@ -88,7 +88,6 @@ describe('ProductFormPage (create mode)', () => {
         const submitBtn = await screen.findByRole('button', { name: /create|créer|save|enregistrer/i });
         expect(submitBtn).not.toBeDisabled();
         await user.click(submitBtn);
-        // After successful mutation the component navigates to /products
         await waitFor(() => {
             expect(screen.getByText('Products List')).toBeInTheDocument();
         }, { timeout: 3000 });

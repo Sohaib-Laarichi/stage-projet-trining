@@ -13,12 +13,9 @@ const ProductList = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
 
-    // errorLink handles Unauthorized (auto-logout) and network errors globally.
-    // We only handle non-auth GraphQL errors locally.
     const { loading, error, data } = useQuery(GET_PRODUCTS, {
         fetchPolicy: 'cache-and-network',
         onError: (err) => {
-            // Skip errors already handled by the global errorLink (Auth & Infra)
             if (!isAuthError(err) && !isInfraError(err)) {
                 toast.error(t('products.loadFailed'));
             }

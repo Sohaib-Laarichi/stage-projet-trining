@@ -134,7 +134,7 @@
     color: #ef4444;
 }
 
-/* Loading spinner */
+
 .spinner-container {
     display: flex;
     flex-direction: column;
@@ -164,7 +164,7 @@
     color: var(--text-secondary);
 }
 
-/* Empty state */
+
 .empty-state {
     text-align: center;
     padding: 60px 20px;

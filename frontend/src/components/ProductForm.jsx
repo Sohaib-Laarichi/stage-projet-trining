@@ -98,12 +98,12 @@ const ProductForm = () => {
         }
     };
 
-    // Loading state for edit mode fetch
+    
     if (isEditMode && fetchLoading) {
         return <LoadingSpinner text={t('productForm.loading')} />;
     }
 
-    // Product not found
+    
     if (isEditMode && fetchError && fetchError.message.includes('not found')) {
         return (
             <div className="not-found">

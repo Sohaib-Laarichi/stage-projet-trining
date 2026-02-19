@@ -65,7 +65,6 @@ const Login = () => {
                 setTimeout(() => navigate('/products'), 1000);
             }
         } catch (err) {
-            // Check if it's an infra error (DB down, Network Error) already handled by global errorLink
             if (!isInfraError(err)) {
                 toast.error(t('login.errorInvalidCredentials'));
             }
