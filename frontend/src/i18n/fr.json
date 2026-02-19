@@ -99,5 +99,9 @@
         "editProduct": "Modifier le Produit",
         "products": "Produits",
         "dashboard": "Tableau de bord"
+    },
+    "errors": {
+        "forbidden": "Accès refusé",
+        "networkError": "Serveur inaccessible"
     }
 }

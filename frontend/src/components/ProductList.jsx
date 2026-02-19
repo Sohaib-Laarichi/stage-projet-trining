@@ -3,29 +3,40 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@apollo/client/react';
 import { useTranslation } from 'react-i18next';
 import { GET_PRODUCTS, DELETE_PRODUCT } from '../queries';
+
 import toast from 'react-hot-toast';
-import { Toaster } from 'react-hot-toast';
+import LoadingSpinner from './LoadingSpinner';
+import { isInfraError, isAuthError } from '../utils/errorUtils';
 import './ProductList.css';
 
 const ProductList = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
+
+    // errorLink handles Unauthorized (auto-logout) and network errors globally.
+    // We only handle non-auth GraphQL errors locally.
     const { loading, error, data } = useQuery(GET_PRODUCTS, {
         fetchPolicy: 'cache-and-network',
         onError: (err) => {
-            if (err.message.includes('Unauthorized')) {
-                localStorage.removeItem('token');
-                navigate('/login');
-            } else {
+            // Skip errors already handled by the global errorLink (Auth & Infra)
+            if (!isAuthError(err) && !isInfraError(err)) {
                 toast.error(t('products.loadFailed'));
             }
         },
     });
 
-    const [deleteProduct] = useMutation(DELETE_PRODUCT, {
+    const [deleteProduct, { loading: deleting }] = useMutation(DELETE_PRODUCT, {
         refetchQueries: [{ query: GET_PRODUCTS }],
         onCompleted: () => toast.success(t('products.deleteSuccess')),
-        onError: (err) => toast.error(err.message || t('products.deleteFailed')),
+        onError: (err) => {
+            if (isAuthError(err)) {
+                toast.error(t('errors.forbidden'));
+                return;
+            }
+            if (!isInfraError(err)) {
+                toast.error(err.message || t('products.deleteFailed'));
+            }
+        },
     });
 
     const handleDelete = (id, name) => {
@@ -35,12 +46,7 @@ const ProductList = () => {
     };
 
     if (loading && !data) {
-        return (
-            <div className="spinner-container">
-                <div className="spinner" />
-                <span className="spinner-text">{t('products.loading')}</span>
-            </div>
-        );
+        return <LoadingSpinner text={t('products.loading')} />;
     }
 
     if (error && !data) {
@@ -51,7 +57,6 @@ const ProductList = () => {
 
     return (
         <div>
-            <Toaster position="top-right" />
             <div className="products-header">
                 <h2>{t('products.title')}</h2>
                 <Link to="/products/new" className="btn-create">
@@ -103,6 +108,7 @@ const ProductList = () => {
                                             <button
                                                 className="btn-action delete"
                                                 onClick={() => handleDelete(product.id, product.name)}
+                                                disabled={deleting}
                                             >
                                                 {t('products.delete')}
                                             </button>

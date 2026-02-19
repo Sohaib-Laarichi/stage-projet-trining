@@ -7,10 +7,12 @@ import { useMutation } from '@apollo/client/react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
-import { Toaster } from 'react-hot-toast';
 import { useLoginSchema } from '../schemas/authSchema';
 import { LOGIN_MUTATION } from '../queries';
 import './Login.css';
+import './LoadingSpinner.css';
+import { isInfraError } from '../utils/errorUtils';
+import { isAuthError } from '../utils/errorUtils';
 
 const Login = () => {
     const { t } = useTranslation();
@@ -27,19 +29,44 @@ const Login = () => {
         mode: 'onChange',
     });
 
+
+    const pingBackend = async () => {
+        try {
+            const res = await fetch('http://localhost:8000/health', {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' },
+                signal: AbortSignal.timeout(3000),
+            });
+            return res.ok;
+        } catch {
+            return false;
+        }
+    };
+
+
+
+    // ... (inside component)
+
     const onSubmit = async (data) => {
+
+        const reachable = await pingBackend();
+        if (!reachable) {
+            toast.error(t('login.errorServerUnreachable'));
+            return;
+        }
+
         try {
             const response = await login({ variables: data });
-            const token = response.data.login.token;
+            const token = response?.data?.login?.token;
 
-            localStorage.setItem('token', token);
-            toast.success(t('login.success'));
-
-            setTimeout(() => navigate('/products'), 1000);
+            if (token) {
+                localStorage.setItem('token', token);
+                toast.success(t('login.success'));
+                setTimeout(() => navigate('/products'), 1000);
+            }
         } catch (err) {
-            if (err.networkError) {
-                toast.error(t('login.errorServerUnreachable'));
-            } else {
+            // Check if it's an infra error (DB down, Network Error) already handled by global errorLink
+            if (!isInfraError(err)) {
                 toast.error(t('login.errorInvalidCredentials'));
             }
         }
@@ -47,7 +74,6 @@ const Login = () => {
 
     return (
         <div className="login-page">
-            <Toaster />
             <div className="login-container">
                 {/* Left Panel - Form */}
                 <div className="login-form-panel">
@@ -76,6 +102,7 @@ const Login = () => {
                             className="login-submit"
                             disabled={!isValid || loading}
                         >
+                            {loading && <span className="btn-spinner" aria-hidden="true" />}
                             {loading ? t('login.loading') : t('login.submit')}
                         </button>
 

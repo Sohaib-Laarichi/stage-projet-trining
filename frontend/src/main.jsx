@@ -5,9 +5,11 @@ import ErrorBoundary from './ErrorBoundary';
 import './i18n/i18n';
 import './index.css';
 import { ThemeProvider } from './context/ThemeContext';
-import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
+import { ApolloClient, InMemoryCache, createHttpLink, from } from '@apollo/client';
 import { ApolloProvider } from '@apollo/client/react';
 import { setContext } from '@apollo/client/link/context';
+import { onError } from '@apollo/client/link/error';
+import toast from 'react-hot-toast';
 
 const httpLink = createHttpLink({
   uri: 'http://localhost:8000/graphql',
@@ -20,11 +22,59 @@ const authLink = setContext((_, { headers }) => {
       ...headers,
       authorization: token ? `Bearer ${token}` : "",
     }
+  };
+});
+
+/** Locale-aware messages (outside React tree, so we can't use i18n hook). */
+const getMsg = (key) => {
+  try {
+    const lng = localStorage.getItem('i18nextLng') || 'en';
+    const messages = {
+      en: { forbidden: 'Access denied', networkError: 'Server unreachable' },
+      fr: { forbidden: 'Accès refusé', networkError: 'Serveur inaccessible' },
+    };
+    return (messages[lng] || messages.en)[key];
+  } catch {
+    const fallback = { forbidden: 'Access denied', networkError: 'Server unreachable' };
+    return fallback[key];
+  }
+};
+
+import { isInfraError, isAuthError } from './utils/errorUtils';
+
+const errorLink = onError(({ graphQLErrors, networkError }) => {
+  if (graphQLErrors) {
+    for (const gqlError of graphQLErrors) {
+      // 1. Auth Errors
+      if (isAuthError(gqlError)) {
+        const msg = (gqlError.message || '').toLowerCase();
+
+        // Unauthorized
+        if (msg.includes('unauthorized') || msg.includes('401')) {
+          localStorage.removeItem('token');
+          window.location.href = '/login';
+          return;
+        }
+
+        // Forbidden (Fallback to this if isAuthError is true but not Unauthorized)
+        toast.error(getMsg('forbidden'));
+        return;
+      }
+
+      if (isInfraError(gqlError)) {
+        toast.error(getMsg('networkError'));
+        return;
+      }
+    }
+  }
+
+  if (networkError) {
+    toast.error(getMsg('networkError'));
   }
 });
 
 const client = new ApolloClient({
-  link: authLink.concat(httpLink),
+  link: from([errorLink, authLink, httpLink]),
   cache: new InMemoryCache(),
 });
 

@@ -4,7 +4,6 @@ import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../context/ThemeContext';
 import toast from 'react-hot-toast';
-import { Toaster } from 'react-hot-toast';
 import './MainLayout.css';
 
 const MainLayout = () => {
@@ -40,7 +39,6 @@ const MainLayout = () => {
 
     return (
         <div className="layout">
-            <Toaster position="top-right" />
 
             { }
             <aside className={`sidebar ${!sidebarOpen ? 'collapsed' : ''}`}>

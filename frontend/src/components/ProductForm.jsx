@@ -6,8 +6,9 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation } from '@apollo/client/react';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
-import { Toaster } from 'react-hot-toast';
 import { GET_PRODUCT_BY_ID, CREATE_PRODUCT, UPDATE_PRODUCT, GET_PRODUCTS } from '../queries';
+import LoadingSpinner from './LoadingSpinner';
+import { isInfraError, isAuthError } from '../utils/errorUtils';
 import './ProductForm.css';
 
 const ProductForm = () => {
@@ -27,7 +28,6 @@ const ProductForm = () => {
     const {
         register,
         handleSubmit,
-        setValue,
         reset,
         formState: { errors, isValid, isSubmitting },
     } = useForm({
@@ -36,15 +36,10 @@ const ProductForm = () => {
     });
 
     // Fetch product for edit mode
+    // Unauthorized/Forbidden handled globally by errorLink.
     const { data: productData, loading: fetchLoading, error: fetchError } = useQuery(GET_PRODUCT_BY_ID, {
         variables: { id: productId },
         skip: !isEditMode,
-        onError: (err) => {
-            if (err.message.includes('Unauthorized')) {
-                localStorage.removeItem('token');
-                navigate('/login');
-            }
-        },
     });
 
     // Prefill form when product data is loaded
@@ -67,7 +62,9 @@ const ProductForm = () => {
             setTimeout(() => navigate('/products'), 800);
         },
         onError: (err) => {
-            toast.error(err.message || t('productForm.createFailed'));
+            if (!isAuthError(err) && !isInfraError(err)) {
+                toast.error(err.message || t('productForm.createFailed'));
+            }
         },
     });
 
@@ -78,7 +75,9 @@ const ProductForm = () => {
             setTimeout(() => navigate('/products'), 800);
         },
         onError: (err) => {
-            toast.error(err.message || t('productForm.updateFailed'));
+            if (!isAuthError(err) && !isInfraError(err)) {
+                toast.error(err.message || t('productForm.updateFailed'));
+            }
         },
     });
 
@@ -101,12 +100,7 @@ const ProductForm = () => {
 
     // Loading state for edit mode fetch
     if (isEditMode && fetchLoading) {
-        return (
-            <div className="spinner-container">
-                <div className="spinner" />
-                <span className="spinner-text">{t('productForm.loading')}</span>
-            </div>
-        );
+        return <LoadingSpinner text={t('productForm.loading')} />;
     }
 
     // Product not found
@@ -122,7 +116,6 @@ const ProductForm = () => {
 
     return (
         <div className="product-form-container">
-            <Toaster position="top-right" />
             <h2>{isEditMode ? t('productForm.editTitle') : t('productForm.createTitle')}</h2>
 
             <div className="product-form">
@@ -183,6 +176,7 @@ const ProductForm = () => {
                             className="btn-submit"
                             disabled={!isValid || isSaving}
                         >
+                            {isSaving && <span className="btn-spinner" aria-hidden="true" />}
                             {isSaving ? t('productForm.saving') : (isEditMode ? t('productForm.update') : t('productForm.create'))}
                         </button>
                     </div>

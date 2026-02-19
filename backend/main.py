@@ -1,7 +1,8 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from sqlalchemy import text
 from strawberry.fastapi import GraphQLRouter
 from schemas import schema
-from database import engine, Base
+from database import engine, Base, get_db
 import logging
 
 # Logger setup
@@ -32,10 +33,17 @@ async def startup():
 
 @app.get("/health")
 async def health_check():
-    return {"status": "UP"}
+    try:
+        # Check DB connection
+        async for session in get_db():
+            await session.execute(text("SELECT 1"))
+            break
+        return {"status": "ok", "database": "connected"}
+    except Exception as e:
+        logger.error(f"Health check failed: {e}")
+        raise HTTPException(status_code=503, detail="Database unavailable")
 
 
-from database import get_db
 from fastapi import Request
 from auth import decode_access_token
 

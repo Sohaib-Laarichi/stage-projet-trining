@@ -99,5 +99,9 @@
         "editProduct": "Edit Product",
         "products": "Products",
         "dashboard": "Dashboard"
+    },
+    "errors": {
+        "forbidden": "Access denied",
+        "networkError": "Server unreachable"
     }
 }

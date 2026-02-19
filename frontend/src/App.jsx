@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import Login from './components/Login';
 import Register from './components/Register';
 import ProductList from './components/ProductList';
@@ -12,7 +13,16 @@ const PrivateRoute = ({ children }) => {
 
 function App() {
   return (
+
     <Router>
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: { zIndex: 99999 }
+        }}
+        containerStyle={{ zIndex: 99999 }}
+      />
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
