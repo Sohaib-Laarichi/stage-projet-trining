@@ -89,12 +89,12 @@
 }
 
 .qty-badge.low {
-    color: #ef4444;
+    color: #e83030;
     background: rgba(239, 68, 68, 0.12);
 }
 
 .qty-badge.ok {
-    color: #22c55e;
+    color: #27e56d;
     background: rgba(34, 197, 94, 0.12);
 }
 

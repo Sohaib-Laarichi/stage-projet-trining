@@ -1,4 +1,4 @@
-// US-13.1 – Sanity check: verifies Vitest + jest-dom are wired up correctly.
+
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 

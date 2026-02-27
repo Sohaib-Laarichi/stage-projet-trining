@@ -1,5 +1,4 @@
-// US-14.1 — Unit tests for centralized Apollo errorLink behaviour
-// We test the onError handler logic directly (isolating it from Apollo's Observable pipeline).
+
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import toast from 'react-hot-toast';
 
@@ -8,9 +7,7 @@ vi.mock('react-hot-toast', () => ({
     Toaster: () => null,
 }));
 
-// ── Inline re-implementation of the errorLink handler (mirrors main.jsx) ──────
-// This mirrors the errorLink logic without requiring the full Apollo Observable
-// machinery, making the tests fast and deterministic.
+
 
 const getMsg = (key) => {
     const messages = { forbidden: 'Access denied', networkError: 'Server unreachable' };

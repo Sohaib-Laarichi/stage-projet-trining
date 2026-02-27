@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException
 from sqlalchemy import text
 from strawberry.fastapi import GraphQLRouter
 from schemas import schema
-from database import engine, Base, get_db
+from database import engine, Base
 import logging
 
 # Logger setup
@@ -44,6 +44,7 @@ async def health_check():
         raise HTTPException(status_code=503, detail="Database unavailable")
 
 
+from database import get_db
 from fastapi import Request
 from auth import decode_access_token
 
