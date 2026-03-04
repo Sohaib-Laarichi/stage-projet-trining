@@ -95,7 +95,7 @@ class Query:
         return await get_current_user(info)
 
     @strawberry.field
-    async def products(self, info) -> List[ProductType]:
+    async def products(self, info: Info) -> List[ProductType]:
         user = info.context.get("user")
         if not user:
             raise Exception("Unauthorized")
@@ -105,7 +105,7 @@ class Query:
         return result.scalars().all()
 
     @strawberry.field
-    async def product_by_id(self , info , id:int) -> ProductType:
+    async def product_by_id(self, info: Info, id: int) -> ProductType:
         user = info.context.get("user")
         if not user:
             raise Exception("Unauthorized")
@@ -154,7 +154,7 @@ class Mutation:
         return new_user
 
     @strawberry.mutation
-    async def create_product(self, info , input:CreateProductInput) -> ProductType:
+    async def create_product(self, info: Info, input: CreateProductInput) -> ProductType:
         user = info.context.get("user")
         if not user:
             raise Exception("Unauthorized")
@@ -177,7 +177,7 @@ class Mutation:
         return new_product
 
     @strawberry.mutation
-    async def update_product(self , info, id:int , input:UpdateProductInput) -> ProductType:
+    async def update_product(self, info: Info, id: int, input: UpdateProductInput) -> ProductType:
         user = info.context.get("user")
         if not user:
             raise Exception("Unauthorized")
@@ -208,7 +208,7 @@ class Mutation:
         return product
 
     @strawberry.mutation
-    async def delete_product(self, info, id: int) -> ProductType:
+    async def delete_product(self, info: Info, id: int) -> ProductType:
         user = info.context.get("user")
         if not user:
             raise Exception("Unauthorized")
@@ -226,7 +226,7 @@ class Mutation:
 
 
 
-    @strawberry.field
+    @strawberry.mutation
     async def login(self, info: Info, input: LoginInput) -> AuthResponse:
         db: AsyncSession = info.context["db"]
         

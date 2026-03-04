@@ -1,142 +1,246 @@
 /* ===== Product Form ===== */
 .product-form-container {
-    max-width: 520px;
+    max-width: 560px;
     margin: 0 auto;
+    animation: slideUp 0.5s ease;
 }
 
 .product-form-container h2 {
-    font-size: 1.5rem;
-    font-weight: 700;
+    font-size: 1.75rem;
+    font-weight: 800;
     color: var(--text-primary);
-    margin: 0 0 24px;
+    margin: 0 0 28px;
+    letter-spacing: -0.02em;
 }
 
 .product-form {
     background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 28px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 36px;
+    box-shadow: var(--shadow-md);
 }
 
 .form-field {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
 }
 
 .form-field label {
     display: block;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 700;
     color: var(--text-secondary);
-    margin-bottom: 6px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .form-field input,
 .form-field textarea {
     width: 100%;
-    padding: 10px 14px;
-    font-size: 14px;
+    padding: 14px 18px;
+    font-size: 15px;
     font-family: inherit;
     background: var(--input-bg);
     color: var(--text-primary);
-    border: 1px solid var(--input-border);
-    border-radius: 8px;
+    border: 2px solid var(--input-border);
+    border-radius: 12px;
     outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     box-sizing: border-box;
 }
 
 .form-field textarea {
     resize: vertical;
-    min-height: 80px;
+    min-height: 100px;
+    line-height: 1.6;
+}
+
+.form-field input:hover,
+.form-field textarea:hover {
+    border-color: var(--text-muted);
 }
 
 .form-field input:focus,
 .form-field textarea:focus {
-    border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    border-color: var(--active-color);
+    box-shadow: 0 0 0 4px var(--input-focus);
+    background: var(--bg-secondary);
+}
+
+.form-field input::placeholder,
+.form-field textarea::placeholder {
+    color: var(--text-muted);
 }
 
 .form-field .field-error {
     color: #ef4444;
-    font-size: 12px;
-    margin-top: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    animation: slideUp 0.3s ease;
 }
 
+/* Number inputs */
+.form-field input[type="number"] {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Two column layout for price/quantity */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.form-row .form-field {
+    margin-bottom: 0;
+}
+
+/* ===== Form Actions ===== */
 .form-actions {
     display: flex;
-    gap: 12px;
-    margin-top: 28px;
+    gap: 16px;
+    margin-top: 36px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-color);
 }
 
 .btn-cancel {
     flex: 1;
-    padding: 11px;
-    font-size: 14px;
-    font-weight: 500;
+    padding: 14px 20px;
+    font-size: 15px;
+    font-weight: 600;
     font-family: inherit;
     background: var(--input-bg);
     color: var(--text-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
     cursor: pointer;
-    transition: all 0.15s;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .btn-cancel:hover {
     background: var(--hover-bg);
     color: var(--text-primary);
+    border-color: var(--text-muted);
+    transform: translateY(-2px);
 }
 
 .btn-submit {
-    flex: 1;
-    padding: 11px;
-    font-size: 14px;
-    font-weight: 600;
+    flex: 1.5;
+    padding: 14px 20px;
+    font-size: 15px;
+    font-weight: 700;
     font-family: inherit;
     color: #fff;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    background: var(--gradient-primary);
     border: none;
-    border-radius: 8px;
+    border-radius: 12px;
     cursor: pointer;
-    transition: opacity 0.2s, transform 0.1s;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 14px var(--glow-primary);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-submit::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .btn-submit:hover:not(:disabled) {
-    opacity: 0.9;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px var(--glow-primary);
+}
+
+.btn-submit:hover:not(:disabled)::before {
+    opacity: 1;
 }
 
 .btn-submit:active:not(:disabled) {
-    transform: scale(0.98);
+    transform: translateY(0);
 }
 
 .btn-submit:disabled {
-    opacity: 0.5;
+    opacity: 0.6;
     cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
 }
 
-/* Not found state */
+/* ===== Not Found State ===== */
 .not-found {
     text-align: center;
-    padding: 60px 20px;
+    padding: 80px 20px;
+    animation: fadeIn 0.4s ease;
+}
+
+.not-found-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.6;
 }
 
 .not-found h3 {
     color: var(--text-primary);
-    margin: 0 0 8px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 12px;
 }
 
 .not-found p {
     color: var(--text-secondary);
     font-size: 14px;
-    margin: 0 0 20px;
+    margin: 0 0 24px;
+    line-height: 1.6;
 }
 
 .not-found a {
-    color: #6366f1;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--active-color);
     font-weight: 600;
     text-decoration: none;
+    transition: all 0.2s ease;
 }
 
 .not-found a:hover {
-    text-decoration: underline;
+    color: var(--text-primary);
+    transform: translateX(4px);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 640px) {
+    .product-form {
+        padding: 28px 24px;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+    
+    .form-row .form-field {
+        margin-bottom: 24px;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .btn-cancel,
+    .btn-submit {
+        flex: none;
+    }
 }
